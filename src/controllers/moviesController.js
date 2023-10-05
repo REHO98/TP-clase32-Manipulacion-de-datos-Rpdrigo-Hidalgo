@@ -110,12 +110,33 @@ const moviesController = {
       );
   },
   destroy: function (req, res) {
-    db.Movie.destroy({
-      where: { id: req.params.id },
+    db.ActorMovie.destroy({
+      where: { movie_id: req.params.id },
     })
-      .then((movie) => {
-        console.log(movie);
-        return res.redirect("/movies");
+      .then((response) => {
+        console.log("response ActorMovie =>", response);
+
+        db.Actor.update(
+          {
+            favorite_movie_id : null,
+          },
+          {
+            where: {
+              favorite_movie_id : req.params.id,
+            },
+          }
+        )
+        .then((response) => {
+          console.log("response Actor =>", response);
+        });
+        
+        db.Movie.destroy({
+          where: { id: req.params.id },
+        })
+        .then((response) => {
+          console.log("response Movie =>", response);
+          return res.redirect("/movies");
+        });
       })
       .catch((error) =>
         console.log("Upss, hubo un error en la conexión", error)
